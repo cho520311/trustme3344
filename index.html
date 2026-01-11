@@ -2,33 +2,54 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>詩詞羅馬字自動標註器</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 30px auto; padding: 20px; background: #fdfdfd; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 6px solid #e67e22; }
-        h2 { color: #d35400; text-align: center; }
-        textarea { width: 100%; height: 150px; font-size: 18px; padding: 15px; box-sizing: border-box; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px; }
-        button { background: #e67e22; color: white; border: none; padding: 15px 40px; border-radius: 5px; cursor: pointer; font-size: 20px; display: block; margin: 0 auto; transition: 0.3s; }
-        button:hover { background: #d35400; }
-        #output { margin-top: 40px; line-height: 4.5; font-size: 36px; padding: 20px; border-top: 1px solid #eee; text-align: left; }
-        ruby { margin-right: 15px; }
-        rt { font-size: 16px; color: #e67e22; font-weight: bold; }
+        :root { --main-color: #e67e22; --hover-color: #d35400; }
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 15px; background: #fdfdfd; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 8px solid var(--main-color); }
+        h2 { color: var(--main-color); text-align: center; margin-bottom: 20px; }
+        
+        textarea { width: 100%; height: 150px; font-size: 18px; padding: 15px; box-sizing: border-box; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--main-color); }
+
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
+        button { border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        
+        .btn-primary { background: var(--main-color); color: white; }
+        .btn-primary:hover { background: var(--hover-color); }
+        .btn-secondary { background: #ecf0f1; color: #34495e; }
+        .btn-secondary:hover { background: #bdc3c7; }
+
+        #output { margin-top: 30px; line-height: 4.5; font-size: 32px; padding: 20px; border-top: 1px solid #eee; background: #fff; min-height: 100px; }
+        ruby { margin-right: 12px; }
+        rt { font-size: 16px; color: var(--main-color); font-weight: bold; }
+
+        /* 響應式調整 */
+        @media (max-width: 600px) {
+            #output { font-size: 24px; line-height: 3.5; }
+            rt { font-size: 12px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>📜 詩詞羅馬字自動標註</h2>
-        <textarea id="poemInput" placeholder="請在此貼上詩詞內容..."></textarea>
-        <button onclick="process()">開始轉換</button>
+        <textarea id="poemInput" placeholder="在此輸入詩詞內容..."></textarea>
+        
+        <div class="btn-group">
+            <button class="btn-primary" onclick="process()">1. 開始轉換</button>
+            <button class="btn-secondary" onclick="copyResult()">2. 複製標註結果</button>
+            <button class="btn-secondary" onclick="shareSite()">3. 分享此網頁</button>
+        </div>
         
         <div id="output"></div>
     </div>
 
     <script>
-        // 第一步：請將生成器產生的 const dict = {...} 整段貼在下方
-        // ---------------------------------------------------------
-        const dict = {
+        // --- 請在此貼上您的字典數據 (const dict = {...};) ---
+     const dict = {
   "文字": "台羅\n數字版",
   "公": "kong1",
   "飲": "im3",
@@ -19704,31 +19725,54 @@
   "枏": "jiam2",
   "鴥": "ut8"
 };
-        
-        // ---------------------------------------------------------
-        // 貼上後，請確保上面這一行的結尾有一個分號 ";"
+        // --------------------------------------------------
 
         function process() {
             const input = document.getElementById('poemInput').value;
             const output = document.getElementById('output');
-            
-            if (!input.trim()) {
-                alert("請先輸入內容！");
-                return;
-            }
+            if (!input.trim()) return alert("請輸入內容");
 
             let htmlResult = "";
-            // 逐字檢查並轉換
             for (let char of input) {
-                if (char === '\n') {
-                    htmlResult += "<br>";
-                } else if (dict[char]) {
-                    htmlResult += `<ruby>${char}<rt>${dict[char]}</rt></ruby>`;
-                } else {
-                    htmlResult += `<span>${char}</span>`;
-                }
+                if (char === '\n') htmlResult += "<br>";
+                else if (dict[char]) htmlResult += `<ruby>${char}<rt>${dict[char]}</rt></ruby>`;
+                else htmlResult += `<span>${char}</span>`;
             }
             output.innerHTML = htmlResult;
+        }
+
+        // 功能：複製標註結果（包含漢字與拼音）
+        function copyResult() {
+            const output = document.getElementById('output');
+            if (output.innerText.trim() === "") return alert("請先轉換內容");
+            
+            // 使用 Clipboard API 複製
+            const range = document.createRange();
+            range.selectNode(output);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                alert("已複製標註結果！(可直接貼在 Word 或通訊軟體)");
+            } catch (err) {
+                alert("抱歉，您的瀏覽器不支援自動複製");
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        // 功能：分享網址
+        function shareSite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '詩詞羅馬字自動標註器',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                // 如果瀏覽器不支援 Web Share API，則改為複製網址
+                navigator.clipboard.writeText(window.location.href);
+                alert("網址已複製到剪貼簿，快傳給朋友吧！");
+            }
         }
     </script>
 </body>
