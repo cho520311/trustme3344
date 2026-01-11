@@ -3,53 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>詩詞羅馬字自動標註器</title>
+    <title>古韻詩詞標註工具</title>
     <style>
-        :root { --main-color: #e67e22; --hover-color: #d35400; }
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 15px; background: #fdfdfd; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 8px solid var(--main-color); }
-        h2 { color: var(--main-color); text-align: center; margin-bottom: 20px; }
-        
-        textarea { width: 100%; height: 150px; font-size: 18px; padding: 15px; box-sizing: border-box; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
-        textarea:focus { border-color: var(--main-color); }
+        :root {
+            --paper-bg: #fdf5e6; 
+            --ink-black: #2c3e50;
+            --classic-red: #a93226;
+            --soft-gold: #d4af37;
+        }
 
-        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
-        button { border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        
-        .btn-primary { background: var(--main-color); color: white; }
-        .btn-primary:hover { background: var(--hover-color); }
-        .btn-secondary { background: #ecf0f1; color: #34495e; }
-        .btn-secondary:hover { background: #bdc3c7; }
+        body {
+            background-color: var(--paper-bg);
+            background-image: linear-gradient(rgba(253, 245, 230, 0.7), rgba(253, 245, 230, 0.7)), 
+                              url('https://images.unsplash.com/photo-1571168128527-36e655610ec1?q=80&w=2000&auto=format&fit=crop'); 
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: "Kaiti TC", "KaiTi", "標楷體", serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
 
-        #output { margin-top: 30px; line-height: 4.5; font-size: 32px; padding: 20px; border-top: 1px solid #eee; background: #fff; min-height: 100px; }
-        ruby { margin-right: 12px; }
-        rt { font-size: 16px; color: var(--main-color); font-weight: bold; }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.88); 
+            padding: 40px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
 
-        /* 響應式調整 */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 1px solid var(--soft-gold);
+            pointer-events: none;
+        }
+
+        .header-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--classic-red);
+            font-size: 46px;
+            margin: 0 0 10px 0;
+            letter-spacing: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .instructor {
+            color: var(--ink-black);
+            font-size: 26px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .system-info {
+            color: #666;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            font-size: 18px;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .contact-info a {
+            color: var(--classic-red);
+            text-decoration: none;
+            border-bottom: 1px solid var(--classic-red);
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            background: rgba(255,255,255,0.6);
+            border: 1px solid #ccc;
+            padding: 15px;
+            font-size: 22px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline-color: var(--classic-red);
+            font-family: inherit;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        button, .btn-link {
+            padding: 15px 30px;
+            border: 2px solid var(--classic-red);
+            background: white;
+            color: var(--classic-red);
+            cursor: pointer;
+            font-size: 22px; 
+            font-weight: bold;
+            transition: 0.3s;
+            border-radius: 8px;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button:hover, .btn-link:hover {
+            background: var(--classic-red);
+            color: white;
+            transform: scale(1.03);
+        }
+
+        /* 留言板按鈕特別醒目 */
+        .btn-msg {
+            background: #fff9eb;
+            border-color: #b8860b;
+            color: #8b4513;
+        }
+
+        #output {
+            line-height: 2.2; 
+            font-size: 36px;
+            color: var(--ink-black);
+            min-height: 200px;
+            padding: 30px 20px;
+            border-top: 2px double var(--soft-gold);
+            word-wrap: break-word;
+        }
+
+        ruby { margin: 0 10px; }
+        rt { font-size: 18px; color: var(--classic-red); font-family: "Arial", sans-serif; font-weight: bold; }
+
         @media (max-width: 600px) {
-            #output { font-size: 24px; line-height: 3.5; }
-            rt { font-size: 12px; }
+            h1 { font-size: 32px; }
+            .instructor { font-size: 20px; }
+            button, .btn-link { width: 100%; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>📜 詩詞羅馬字自動標註</h2>
-        <textarea id="poemInput" placeholder="在此輸入詩詞內容..."></textarea>
+<div class="container">
+    <div class="header-area">
+        <h1>古韻詩詞標註</h1>
+        <div class="instructor">瀛社 林正三老師 吳秀真老師 指導</div>
+        <div class="system-info">標音採用二六同系統</div>
         
-        <div class="btn-group">
-            <button class="btn-primary" onclick="process()">1. 開始轉換</button>
-            <button class="btn-secondary" onclick="copyResult()">2. 複製標註結果</button>
-            <button class="btn-secondary" onclick="shareSite()">3. 分享此網頁</button>
+        <div class="contact-info">
+            交流聯絡：<a href="mailto:cho.yi.hsiang@gmail.com">cho.yi.hsiang@gmail.com</a>
         </div>
-        
-        <div id="output"></div>
     </div>
 
-    <script>
-        // --- 請在此貼上您的字典數據 (const dict = {...};) ---
-     const dict = {
+    <textarea id="poemInput" placeholder="在此題詩內容..."></textarea>
+
+    <div class="btn-group">
+        <button onclick="process()">開始轉換</button>
+        <button onclick="copyResult()">複製結果</button>
+        <a href="https://forms.gle/jBxt4HzwPNPDowfm7" target="_blank" class="btn-link btn-msg">🖋️ 詩友留言板</a>
+        <button onclick="shareSite()">分享網頁</button>
+    </div>
+
+    <div id="output"></div>
+</div>
+
+<script>
+    /* ---------------------------------------------------------
+       在此貼上您的字典數據 (const dict = {...};)
+       --------------------------------------------------------- */
+   const dict = {
   "文字": "台羅\n數字版",
   "公": "kong1",
   "飲": "im3",
@@ -19725,55 +19859,44 @@
   "枏": "jiam2",
   "鴥": "ut8"
 };
-        // --------------------------------------------------
 
-        function process() {
-            const input = document.getElementById('poemInput').value;
-            const output = document.getElementById('output');
-            if (!input.trim()) return alert("請輸入內容");
-
-            let htmlResult = "";
-            for (let char of input) {
-                if (char === '\n') htmlResult += "<br>";
-                else if (dict[char]) htmlResult += `<ruby>${char}<rt>${dict[char]}</rt></ruby>`;
-                else htmlResult += `<span>${char}</span>`;
-            }
-            output.innerHTML = htmlResult;
+    function process() {
+        const input = document.getElementById('poemInput').value;
+        const output = document.getElementById('output');
+        if (!input.trim()) return;
+        let html = "";
+        for (let char of input) {
+            if (char === '\n') html += "<br>";
+            else if (dict[char]) html += `<ruby>${char}<rt>${dict[char]}</rt></ruby>`;
+            else html += `<span>${char}</span>`;
         }
+        output.innerHTML = html;
+    }
 
-        // 功能：複製標註結果（包含漢字與拼音）
-        function copyResult() {
-            const output = document.getElementById('output');
-            if (output.innerText.trim() === "") return alert("請先轉換內容");
-            
-            // 使用 Clipboard API 複製
-            const range = document.createRange();
-            range.selectNode(output);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-            
-            try {
-                document.execCommand('copy');
-                alert("已複製標註結果！(可直接貼在 Word 或通訊軟體)");
-            } catch (err) {
-                alert("抱歉，您的瀏覽器不支援自動複製");
-            }
-            window.getSelection().removeAllRanges();
+    async function copyResult() {
+        const output = document.getElementById('output');
+        if (!output.innerText.trim()) return alert("尚未產生內容");
+        try {
+            const type = "text/html";
+            const blob = new Blob([output.innerHTML], { type });
+            const data = [new ClipboardItem({ [type]: blob, "text/plain": new Blob([output.innerText], { type: "text/plain" }) })];
+            await navigator.clipboard.write(data);
+            alert("墨寶已複製成功！");
+        } catch (err) {
+            navigator.clipboard.writeText(output.innerText);
+            alert("內容已複製 (純文字)！");
         }
+    }
 
-        // 功能：分享網址
-        function shareSite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: '詩詞羅馬字自動標註器',
-                    url: window.location.href
-                }).catch(console.error);
-            } else {
-                // 如果瀏覽器不支援 Web Share API，則改為複製網址
-                navigator.clipboard.writeText(window.location.href);
-                alert("網址已複製到剪貼簿，快傳給朋友吧！");
-            }
+    function shareSite() {
+        if (navigator.share) {
+            navigator.share({ title: '古韻詩詞標註工具', url: window.location.href });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert("網址已複製到剪貼簿！");
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
